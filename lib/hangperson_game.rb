@@ -27,6 +27,9 @@ class HangpersonGame
   end
 
   def word_with_guesses
+    @word.chars.map {
+      |letter| @guesses.include?(letter) ? letter : "-"
+    }.join
   end
   # You can test it by running $ bundle exec irb -I. -r app.rb
   # And then in the irb: irb(main):001:0> HangpersonGame.get_random_word
