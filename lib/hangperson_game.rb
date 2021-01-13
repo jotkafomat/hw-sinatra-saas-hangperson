@@ -4,38 +4,48 @@ class HangpersonGame
   # to make the tests in spec/hangperson_game_spec.rb pass.
 
   # Get a word from remote "random word" service
+  attr_reader :word, :inputs
 
-    attr_reader :word, :guesses, :wrong_guesses
   def initialize(word)
     @word = word
-    @guesses = ""
-    @wrong_guesses = ""
+    @inputs = []
   end
 
-  def guess(word)
-    raise ArgumentError if word == nil
-    raise ArgumentError if word.empty? || word.count("a-zA-Z") == 0
-    if @word.include?(word.downcase) && !@guesses.include?(word.downcase)
-      @guesses << word.downcase
-    elsif !@guesses.include?(word.downcase) && !@wrong_guesses.include?(word.downcase)
-      @wrong_guesses << word.downcase
-    elsif word.downcase == @word
-      return true
-    elsif word.downcase != @word
-      return false
-    end
+  def guesses
+    @inputs
+      .filter {
+        |letter| word.include?(letter)
+      }
+      .join
+  end
+
+  def wrong_guesses
+    @inputs
+      .filter {
+        |letter| !word.include?(letter)
+      }
+      .join
+  end
+
+  def guess(input)
+    raise ArgumentError if input == nil
+    letter = input.downcase
+    raise ArgumentError if letter.empty? || letter.count("a-z") == 0
+    return false if @inputs.include?(letter)
+    @inputs.push(letter)
+    return true
   end
 
   def word_with_guesses
-    @word.chars.map {
-      |letter| @guesses.include?(letter) ? letter : "-"
+    word.chars.map {
+      |letter| guesses.include?(letter) ? letter : "-"
     }.join
   end
 
   def check_win_or_lose
-    if word_with_guesses() == @word
+    if word_with_guesses() == word
       return :win
-    elsif @wrong_guesses.length == 7
+    elsif wrong_guesses.length == 7
       return :lose
     else
       return :play
